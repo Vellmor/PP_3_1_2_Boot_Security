@@ -1,10 +1,13 @@
 package ru.kata.spring.boot_security.demo.models;
 
 
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -16,37 +19,35 @@ import java.util.stream.Collectors;
  * {@code @create} 2022-05-25 13:42
  **/
 @Entity
-@Data
+@Getter
+@Setter
 @RequiredArgsConstructor
 @Table(name = "users")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name="nick_name")
-    private String nickName;
-    private String password;
-    private String email;
     @Column(name = "first_name")
     private String firstName;
-    @Column(name = "second_name")
-    private String secondName;
+    @Column(name = "last_name")
+    private String lastName;
     private int age;
-    private String gender;
-    private Boolean enabled;
-
-    @ManyToMany(cascade=CascadeType.MERGE)
+    private String email;
+    private String password;
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
-            name="user_role",
-            joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
-            inverseJoinColumns={@JoinColumn(name="role_id", referencedColumnName="id")})
+            name = "user_role",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private List<Role> roles;
 
     public User update(User user) {
         this.firstName = user.getFirstName();
-        this.secondName = user.getSecondName();
+        this.lastName = user.getLastName();
         this.age = user.getAge();
-        this.gender = user.getGender();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.roles = user.getRoles();
         return this;
     }
 
@@ -57,7 +58,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.nickName;
+        return this.email;
     }
 
     @Override

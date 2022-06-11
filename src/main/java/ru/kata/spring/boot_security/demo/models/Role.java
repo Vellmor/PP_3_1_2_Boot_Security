@@ -1,16 +1,17 @@
 package ru.kata.spring.boot_security.demo.models;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
 @Table(name = "roles")
-@Data
+@Getter
+@Setter
 @RequiredArgsConstructor
 public class Role implements GrantedAuthority {
     @Id
@@ -21,7 +22,7 @@ public class Role implements GrantedAuthority {
     private String roleName;
 
     @ManyToMany(mappedBy = "roles")
-    private List< User > users;
+    private List<User> users;
 
     @Override
     public String getAuthority() {
