@@ -3,10 +3,9 @@
       xmlns:sec="http://www.springframework.org/security/tags">
 <head>
     <meta charset="UTF-8">
-    <title>New user</title>
+    <title>Update user</title>
 </head>
 <body>
-
 <div sec:authorize="isAuthenticated()">
     Logged in user: <b th:inline="text"> [[${#httpServletRequest.remoteUser}]] </b>
     <form th:action="@{/logout}" method="POST">
@@ -14,29 +13,30 @@
     </form>
 </div>
 
-<form th:method="POST" th:action="@{/admin}" th:object="${user}">
-    <label for="nickName">NickName</label>
-    <input type="text" th:field="*{nickName}" id="nickName"/>
-    <br/>
+<form th:method="PATCH" th:action="@{/user/{id}(id=${user.getId()})}" th:object="${user}">
     <label for="email">Email</label>
     <input type="text" th:field="*{email}" id="email"/>
     <br/>
     <label for="password">Password</label>
-    <input type="text" th:field="*{password}" id="password"/>
+    <input id="password" class="form-control" type="password" th:field="*{password}"/>
+<!--    <input type="text" th:field="*{password}" id="password"/>-->
     <br/>
-    <label for="name">Name</label>
-    <input type="text" th:field="*{firstName}" id="name"/>
+    <label for="firstName">First name</label>
+    <input type="text" th:field="*{firstName}" id="firstName"/>
     <br/>
-    <label for="secondName">Surname</label>
-    <input type="text" th:field="*{secondName}" id="secondName"/>
+    <label for="lastName">Last name</label>
+    <input type="text" th:field="*{lastName}" id="lastName"/>
     <br/>
     <label for="age">Age</label>
     <input type="text" th:field="*{age}" id="age"/>
     <br/>
-    <label for="gender">Gender</label>
-    <input type="text" th:field="*{gender}" id="gender"/>
+    <label for="roles">Roles</label>
+    <select th:field="*{roles}" id="roles">
+        <option th:value="2" th:text="ROLE_USER">
+        </option>
+    </select>
     <br/>
-    <input type="submit" value="Create!"/>
+    <input type="submit" value="Update!"/>
 </form>
 
 </body>

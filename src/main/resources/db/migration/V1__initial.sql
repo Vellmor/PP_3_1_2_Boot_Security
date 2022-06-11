@@ -1,14 +1,11 @@
 create table if not exists users
 (
     id          int auto_increment,
-    nick_name   text not null,
-    password    text not null,
-    email       text not null,
     first_name  text not null,
-    second_name text not null,
+    last_name text not null,
     age         int not null,
-    gender      text,
-    enabled     boolean,
+    email       text not null,
+    password    text not null,
     constraint users_pk primary key (id)
 );
 
@@ -27,6 +24,7 @@ create table if not exists user_role
 (
     user_id int not null,
     role_id int not null,
+    constraint user_role_pk primary key (user_id, role_id),
     constraint user_role_roles_id_fk
         foreign key (role_id) references roles (id),
     constraint user_role_users_id_fk

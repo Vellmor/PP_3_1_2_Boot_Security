@@ -7,5 +7,5 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, Integer> {
-    User findByNickName(String nickName);
+    User findByEmail(String email);
 }

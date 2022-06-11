@@ -33,7 +33,7 @@
     <tr th:each="user : ${users}">
         <td><a th:href="@{/admin/{id}(id=${user.getId()})}" th:text="${user.getId()}"/></td>
         <td th:text="${user.getFirstName()}"/>
-        <td th:text="${user.getSecondName()}"/>
+        <td th:text="${user.getLastName()}"/>
     </tr>
     </tbody>
 </table>
