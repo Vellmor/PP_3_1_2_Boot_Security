@@ -40,14 +40,14 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User getByNickName(String name) {
+    public User getByEmail(String name) {
         return userRepository.findByEmail(name);
     }
 
     @Override
     public void update(int id, User updatedUser) {
         User user = userRepository.findById(id).get();
-        updatedUser.setPassword(updatedUser.getPassword().isEmpty() ? user.getPassword() : new BCryptPasswordEncoder().encode(updatedUser.getPassword()));
+        updatedUser.setPassword(updatedUser.getPassword() == null ? user.getPassword() : new BCryptPasswordEncoder().encode(updatedUser.getPassword()));
         user.update(updatedUser);
         userRepository.save(user);
     }

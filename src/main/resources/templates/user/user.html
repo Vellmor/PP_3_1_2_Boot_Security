@@ -2,31 +2,95 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.springframework.org/security/tags">
 <head>
-    <meta charset="UTF-8">
-    <title>User info</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>User panel</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-<div sec:authorize="isAuthenticated()">
-    Logged in user: <b th:inline="text"> [[${#httpServletRequest.remoteUser}]] </b>
-    <form th:action="@{/logout}" method="POST">
-        <input type="submit" value="Logout"/>
-    </form>
-</div>
-<div>
-    <p th:text="${user.getId()}">VALUE</p>
-    <p th:text="${user.getFirstName()}">VALUE</p>
-    <p th:text="${user.getLastName()}">VALUE</p>
-    <p th:text="${user.getAge()}">VALUE</p>
-    <p th:text="${user.getEmail()}">VALUE</p>
-    <p th:each="role : ${user.getRoles()}" th:value="${role.getId()}" th:text="${role.getRoleName()}">VALUE</p>
-</div>
-
-<div sec:authorize="hasRole('ROLE_USER')">
-    <a th:href="@{/user/edit}">Edit!</a>
-    <form th:method="DELETE" th:action="@{/user}" th:object="${user}">
-        <input type="submit" value="Delete!"/>
-    </form>
+<div class="row">
+    <div class="col-12">
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="navbar-brand" sec:authorize="isAuthenticated()">
+                <b th:text="${thisUser.getEmail()}"/> with roles: <span th:each="role : ${thisUser.getRoles()}"><span
+                    th:text="${role.getRoleName()}"></span><b> </b></span>
+            </div>
+            <form th:action="@{/logout}" method="POST">
+                <input type="hidden"/>
+                <button type="submit" class="btn btn-link text-muted">Logout</button>
+            </form>
+        </nav>
+    </div>
 </div>
 
+<div class="row">
+    <div class="col-12">
+        <br/>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-2">
+        <div class="list-group" id="list-tab" role="tablist">
+            <a class="list-group-item list-group-item-action active" id="list-profile-list" data-toggle="list"
+               href="#userInfo"
+               role="tab" aria-controls="profile">User</a>
+        </div>
+    </div>
+    <div class="col-md-10">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>
+                    User information page
+                </h1>
+                <div class="alert alert-dark" role="alert">
+                    <h4>About user</h4>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Age</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td th:text="${thisUser.getId()}"/>
+                            <td th:text="${thisUser.getFirstName()}"/>
+                            <td th:text="${thisUser.getLastName()}"/>
+                            <td th:text="${thisUser.getAge()}"/>
+                            <td th:text="${thisUser.getEmail()}"/>
+                            <td>
+                                <div th:each="role : ${thisUser.getRoles()}">
+                                    <p th:text="${role.getRoleName()}"/>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
 </body>
 </html>
