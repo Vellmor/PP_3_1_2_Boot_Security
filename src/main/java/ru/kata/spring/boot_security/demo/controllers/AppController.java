@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -9,14 +10,14 @@ import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.security.Principal;
 
-@org.springframework.stereotype.Controller
-public class Controller {
+@Controller
+public class AppController {
 
     private final UserService userService;
     private final RoleServise roleServise;
 
     @Autowired
-    public Controller(UserService userService, RoleServise roleServise) {
+    public AppController(UserService userService, RoleServise roleServise) {
         this.userService = userService;
         this.roleServise = roleServise;
     }
