@@ -24,10 +24,14 @@ import java.util.stream.Collectors;
  * {@code @create} 2022-05-25 13:42
  **/
 @Entity
+@Table(name = "users")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 @Getter
 @Setter
 @RequiredArgsConstructor
-@Table(name = "users")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,16 +47,14 @@ public class User implements UserDetails {
     @NotNull
     private String email;
     private String password;
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(
+            targetEntity = Role.class,
+            cascade = {CascadeType.PERSIST, CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH}
+    )
     @JoinTable(
             name = "user_role",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
-    @JsonManagedReference
-    @JsonIdentityInfo(
-            generator = ObjectIdGenerators.PropertyGenerator.class,
-            property = "id"
-    )
     private List<Role> roles;
 
     public User update(User user) {

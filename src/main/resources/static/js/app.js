@@ -149,7 +149,7 @@ async function editUser(modal, id) {
                        id="password"
                        name="password"
                        placeholder="Password">
-                <select multiple
+                <select multiple="multiple"
                         id="roles"
                         name="roles"
                         class="form-control">
