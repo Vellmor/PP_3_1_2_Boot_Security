@@ -303,15 +303,19 @@
                                            for="rolesModalEdit">
                                         Roles
                                     </label>
-                                    <select multiple
-                                            th:value="${user.getRoles()}"
-                                            id="rolesModalEdit"
-                                            name="roles"
-                                            class="form-control">
-                                        <option th:each="role : ${roles}"
-                                                th:value="${role.getId()}"
-                                                th:text="${role.getRoleName()}">
-                                        </option>
+<!--                                    <select multiple-->
+<!--                                            th:value="${user.getRoles()}"-->
+<!--                                            id="rolesModalEdit"-->
+<!--                                            name="roles"-->
+<!--                                            class="form-control">-->
+<!--                                        <option th:each="role : ${roles}"-->
+<!--                                                th:value="${role.getId()}"-->
+<!--                                                th:text="${role.getRoleName()}">-->
+<!--                                        </option>-->
+<!--                                    </select>-->
+                                    <select id="rolesModalEdit" class="form-select w-100" size="2"
+                                            name="nameRoles" multiple="multiple">
+                                        <option id = "OptionRoles"></option>
                                     </select>
                                 </div>
 

@@ -24,7 +24,7 @@ public class AppController {
 
     @GetMapping("/admin")
     public String admin(@ModelAttribute("user") User user, Model model, Principal principal) {
-        model.addAttribute("users", userService.listUsers());
+        model.addAttribute("users", userService.allUsers());
         model.addAttribute("thisUser", userService.getByEmail(principal.getName()));
         model.addAttribute("roles", roleServise.listRoles());
         return "admin/admin";

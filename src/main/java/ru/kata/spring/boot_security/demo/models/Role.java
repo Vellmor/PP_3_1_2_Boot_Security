@@ -15,6 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "roles")
 @JsonIdentityInfo(
+        scope = Role.class,
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"
 )
@@ -31,8 +32,7 @@ public class Role implements GrantedAuthority {
 
     @ManyToMany(
             mappedBy = "roles",
-            targetEntity = User.class,
-            cascade = {CascadeType.PERSIST, CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH}
+            cascade = CascadeType.ALL
     )
     private List<User> users;
 

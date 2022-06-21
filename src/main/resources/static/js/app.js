@@ -150,11 +150,11 @@ async function editUser(modal, id) {
                        name="password"
                        placeholder="Password">
                 <select multiple="multiple"
-                        id="roles"
+                        id="rolesMulti"
                         name="roles"
                         class="form-control">
-                    <option value="1" label="ROLE_ADMIN"></option>
-                    <option value="2" label="ROLE_USER"></option>
+                    <option value="1" label="ROLE_ADMIN">ROLE_ADMIN</option>
+                    <option value="2" label="ROLE_USER">ROLE_USER</option>
                 </select>
             </form>
         `;
@@ -168,9 +168,7 @@ async function editUser(modal, id) {
         let age = modal.find("#age").val().trim();
         let email = modal.find("#email").val().trim();
         let password = modal.find("#password").val().trim();
-        // const selected = modal.querySelectorAll('#roles option:checked');
-        // const roles = Array.from(selected).map(el => el.value);
-        const roles = $('#roles').val();
+        let roles = $('#rolesMulti').val();
         let data = {
             id: id,
             firstName: firstName,

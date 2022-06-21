@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "users")
 @JsonIdentityInfo(
+        scope = User.class,
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"
 )
@@ -45,12 +46,10 @@ public class User implements UserDetails {
     private int age;
     @Email
     @NotNull
+    @Column(unique=true)
     private String email;
     private String password;
-    @ManyToMany(
-            targetEntity = Role.class,
-            cascade = {CascadeType.PERSIST, CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH}
-    )
+    @ManyToMany
     @JoinTable(
             name = "user_role",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
