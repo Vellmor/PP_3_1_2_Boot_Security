@@ -1,6 +1,6 @@
 $(async function () {
-    await getTableWithUsers();
-    await getDefaultModal();
+    getTableWithUsers();
+    getDefaultModal();
     addNewUser();
 })
 
@@ -34,6 +34,7 @@ async function getTableWithUsers() {
         .then(res => res.json())
         .then(users => {
             users.forEach(user => {
+                let rolesString = user.roles.map(role => `<p>${role.roleName}</p>`).join('')
                 let tableFilling = `$(
                         <tr>
                             <td>${user.id}</td>
@@ -41,13 +42,13 @@ async function getTableWithUsers() {
                             <td>${user.lastName}</td>
                             <td>${user.age}</td>
                             <td>${user.email}</td>
-                            <td>${user.roles.map(role => role.roleName).join(', ')}</td>
+                            <td>${rolesString}</td>
                             <td>
-                                <button type="button" data-userid="${user.id}" data-action="edit" class="btn btn-outline-secondary" 
+                                <button type="button" data-userid="edit${user.id}" data-action="edit" class="btn btn-primary" 
                                 data-toggle="modal" data-target="#defaultModal">Edit</button>
                             </td>
                             <td>
-                                <button type="button" data-userid="${user.id}" data-action="delete" class="btn btn-outline-danger" 
+                                <button type="button" data-userid="delete${user.id}" data-action="delete" class="btn btn-danger" 
                                 data-toggle="modal" data-target="#defaultModal">Delete</button>
                             </td>
                         </tr>
@@ -105,8 +106,8 @@ async function editUser(modal, id) {
 
     modal.find('.modal-title').html('Edit user');
 
-    let editButton = `<button  class="btn btn-outline-success" id="editButton">Edit</button>`;
     let closeButton = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>`
+    let editButton = `<button  type="submit" class="btn btn-primary" data-toggle="modal" id="editButton">Edit</button>`;
     modal.find('.modal-footer').append(editButton);
     modal.find('.modal-footer').append(closeButton);
 

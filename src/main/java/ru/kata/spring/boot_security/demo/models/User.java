@@ -1,16 +1,12 @@
 package ru.kata.spring.boot_security.demo.models;
 
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -25,11 +21,6 @@ import java.util.stream.Collectors;
  **/
 @Entity
 @Table(name = "users")
-@JsonIdentityInfo(
-        scope = User.class,
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -46,7 +37,7 @@ public class User implements UserDetails {
     private int age;
     @Email
     @NotNull
-    @Column(unique=true)
+    @Column(unique = true)
     private String email;
     private String password;
     @ManyToMany
