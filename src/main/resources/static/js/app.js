@@ -261,33 +261,39 @@ async function deleteUser(modal, id) {
 
 // готово
 async function addNewUser() {
-    $('#newUserTab').click(async () => {
+    $('#newUserTab').on('click', async () => {
         const addUserForm = $('#newUserForm')
         allRoles.then(
             roles => {
                 const rolesForm = roles.map(r => `<option value="${r.id}">${r.roleName}</option>`).join('')
                 addUserForm.find('#rolesNew').append(rolesForm)
             })
-
     })
-    $('#addNewUserButton').click(async () =>  {
+    $('#addNewUserButton').on('click', async () =>  {
         let addUserForm = $('#newUserForm')
         let firstName = addUserForm.find('#firstNameNew').val().trim();
         let lastName = addUserForm.find('#lastNameNew').val().trim();
         let age = addUserForm.find('#ageNew').val().trim();
         let email = addUserForm.find('#emailNew').val().trim();
         let password = addUserForm.find('#passwordNew').val().trim();
-        let roles = addUserForm.find('#rolesNew').val().map(r => {
-            Object.create({}, { id: { value: r } })
-        })
-        let data = Object.create({}, {
-            firstName: { value: firstName },
-            lastName: { value: lastName },
-            age: { value: age },
-            email: { value: email },
-            password: { value: password },
-            roles: { value: roles }
-        })
+        let roles = addUserForm.find('#rolesNew').val().map(
+            function (role) {
+                const name = role === '1' ? 'ROLE_ADMIN' : 'ROLE_USER'
+                return {
+                    'id': parseInt(role),
+                    'roleName': name
+                }
+            }
+        )
+
+        let data = {
+            firstName: firstName,
+            lastName: lastName,
+            age: age,
+            email: email,
+            password: password,
+            roles: roles
+        }
         const response = await userFetchService.addNewUser(data);
         if (response.ok) {
             await getTableWithUsers();
