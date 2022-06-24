@@ -32,10 +32,8 @@ const roleFetchService = {
         'Content-Type': 'application/json',
         'Referer': null
     },
-    findAllRoles: async () => await fetch('/api/roles'),
+    findAllRoles: async () => await fetch(`/api/roles`),
 }
-
-const allRoles = roleFetchService.findAllRoles().then(res => res.json());
 
 async function getTableWithUsers() {
     let table = $('#mainTableWithUsers tbody');
@@ -261,32 +259,36 @@ async function deleteUser(modal, id) {
 
 // готово
 async function addNewUser() {
+    const response = await roleFetchService.findAllRoles();
+    const allRoles = response.json();
     $('#newUserTab').on('click', async () => {
-        const addUserForm = $('#newUserForm')
+        const select = $('#newUserForm').find('#rolesNew')
         allRoles.then(
             roles => {
-                const rolesForm = roles.map(r => `<option value="${r.id}">${r.roleName}</option>`).join('')
-                addUserForm.find('#rolesNew').append(rolesForm)
+                // const rolesForm =
+                roles.map(r => select.append(new Option(r.roleName, r.id))
+                    // `<option value="${r.id}">${r.roleName}</option>`
+                );
+                // .join('');
+                // select.append(rolesForm);
             })
     })
-    $('#addNewUserButton').on('click', async () =>  {
-        let addUserForm = $('#newUserForm')
-        let firstName = addUserForm.find('#firstNameNew').val().trim();
-        let lastName = addUserForm.find('#lastNameNew').val().trim();
-        let age = addUserForm.find('#ageNew').val().trim();
-        let email = addUserForm.find('#emailNew').val().trim();
-        let password = addUserForm.find('#passwordNew').val().trim();
-        let roles = addUserForm.find('#rolesNew').val().map(
-            function (role) {
-                const name = role === '1' ? 'ROLE_ADMIN' : 'ROLE_USER'
-                return {
-                    'id': parseInt(role),
-                    'roleName': name
+    $('#addNewUserButton').on('click', async () => {
+        const addUserForm = $('#newUserForm')
+        const firstName = addUserForm.find('#firstNameNew').val().trim();
+        const lastName = addUserForm.find('#lastNameNew').val().trim();
+        const age = addUserForm.find('#ageNew').val().trim();
+        const email = addUserForm.find('#emailNew').val().trim();
+        const password = addUserForm.find('#passwordNew').val().trim();
+        const select = addUserForm.find('#rolesNew option:selected').select()
+        const roles = select.map(function () {
+                    return {
+                        'id': this.val(),
+                        'roleName': this.text()
+                    }
                 }
-            }
-        )
-
-        let data = {
+            )
+        const data = {
             firstName: firstName,
             lastName: lastName,
             age: age,
@@ -304,8 +306,8 @@ async function addNewUser() {
             addUserForm.find('#passwordNew').val('');
             addUserForm.find('#rolesNew').val('');
         } else {
-            let body = await response.json();
-            let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
+            const body = await response.json();
+            const alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
                             ${body.info}
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
