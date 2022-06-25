@@ -1,5 +1,5 @@
 $(async function () {
-    getTableWithUsers();
+    await getTableWithUsers();
     getDefaultModal();
     addNewUser();
 })
@@ -7,7 +7,7 @@ $(async function () {
 const userFetchService = {
     head: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
         'Referer': null
     },
     // bodyAdd : async function(user) {return {'method': 'POST', 'headers': this.head, 'body': user}},
@@ -227,7 +227,7 @@ async function editUser(modal, id) {
             password: password,
             roles: roles
         }
-        const response = await userFetchService.updateUser(data, id);
+        let response = await userFetchService.updateUser(data, id);
 
         if (response.ok) {
             await getTableWithUsers();
@@ -259,46 +259,46 @@ async function deleteUser(modal, id) {
 
 // готово
 async function addNewUser() {
-    const response = await roleFetchService.findAllRoles();
-    const allRoles = response.json();
+    let response = await roleFetchService.findAllRoles();
+    let allRoles = response.json();
+    let allRolesArr = []
     $('#newUserTab').on('click', async () => {
-        const select = $('#newUserForm').find('#rolesNew')
-        allRoles.then(
-            roles => {
-                // const rolesForm =
-                roles.map(r => select.append(new Option(r.roleName, r.id))
-                    // `<option value="${r.id}">${r.roleName}</option>`
-                );
-                // .join('');
-                // select.append(rolesForm);
-            })
+        $('#newUserForm').find('#rolesNew').find('option').remove() //.end()
+        allRoles.then(roles => {
+            roles.map(r => {
+                    allRolesArr[r.id] = r.roleName
+                    $('#newUserForm').find('#rolesNew').append(new Option(r.roleName, r.id))
+                }
+            );
+        })
     })
     $('#addNewUserButton').on('click', async () => {
-        const addUserForm = $('#newUserForm')
-        const firstName = addUserForm.find('#firstNameNew').val().trim();
-        const lastName = addUserForm.find('#lastNameNew').val().trim();
-        const age = addUserForm.find('#ageNew').val().trim();
-        const email = addUserForm.find('#emailNew').val().trim();
-        const password = addUserForm.find('#passwordNew').val().trim();
-        const select = addUserForm.find('#rolesNew option:selected').select()
-        const roles = select.map(function () {
-                    return {
-                        'id': this.val(),
-                        'roleName': this.text()
-                    }
+        let addUserForm = $('#newUserForm')
+        let firstNameToSend = addUserForm.find('#firstNameNew').val().trim();
+        let lastNameToSend = addUserForm.find('#lastNameNew').val().trim();
+        let ageToSend = addUserForm.find('#ageNew').val().trim();
+        let emailToSend = addUserForm.find('#emailNew').val().trim();
+        let passwordToSend = addUserForm.find('#passwordNew').val().trim();
+        let select = addUserForm.find('#rolesNew').val()
+        let rolesToSend = select.map(function (r) {
+                return {
+                    'id': r,
+                    'roleName': allRolesArr[parseInt(r)]
                 }
-            )
-        const data = {
-            firstName: firstName,
-            lastName: lastName,
-            age: age,
-            email: email,
-            password: password,
-            roles: roles
+            }
+        )
+        let data = {
+            firstName: firstNameToSend,
+            lastName: lastNameToSend,
+            age: ageToSend,
+            email: emailToSend,
+            password: passwordToSend,
+            roles: rolesToSend
         }
-        const response = await userFetchService.addNewUser(data);
+        let jsonUser = JSON.stringify(data)
+        let response = await userFetchService.addNewUser(data);
         if (response.ok) {
-            await getTableWithUsers();
+            getTableWithUsers();
             addUserForm.find('#firstNameNew').val('');
             addUserForm.find('#lastNameNew').val('');
             addUserForm.find('#ageNew').val('');
@@ -306,8 +306,8 @@ async function addNewUser() {
             addUserForm.find('#passwordNew').val('');
             addUserForm.find('#rolesNew').val('');
         } else {
-            const body = await response.json();
-            const alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
+            let body = response;
+            let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
                             ${body.info}
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>

@@ -3,13 +3,13 @@ package ru.kata.spring.boot_security.demo.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -36,20 +36,28 @@ public class UserRestController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<String> apiAddNewUser(@RequestBody User user,
-                                                BindingResult bindingResult) {
+    public ResponseEntity<String> apiAddNewUser(
+            @RequestBody User user,
+            BindingResult bindingResult
+    ) {
         if (bindingResult.hasErrors()) {
             String error = getErrorsFromBindingResult(bindingResult);
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
-        userService.add(user);
+        try {
+            userService.add(user);
+        } catch (UsernameNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PatchMapping("/users/{id}")
-    public ResponseEntity<String> apiUpdateUser(@PathVariable("id") int id,
-                                              @RequestBody User user,
-                                              BindingResult bindingResult) {
+    public ResponseEntity<String> apiUpdateUser(
+            @PathVariable("id") int id,
+            @RequestBody User user,
+            BindingResult bindingResult
+    ) {
         if (bindingResult.hasErrors()) {
             String error = getErrorsFromBindingResult(bindingResult);
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -59,7 +67,9 @@ public class UserRestController {
     }
 
     @DeleteMapping("users/{id}")
-    public ResponseEntity<String> apiDeleteUser(@PathVariable("id") int id) {
+    public ResponseEntity<String> apiDeleteUser(
+            @PathVariable("id") int id
+    ) {
         userService.delete(id);
         return new ResponseEntity<>("User was deleted", HttpStatus.OK);
     }

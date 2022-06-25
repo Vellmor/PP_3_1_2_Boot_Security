@@ -26,7 +26,10 @@ public class UserServiceImp implements UserService {
     @Override
     public User add(User user) {
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-        return userRepository.save(user);
+        if (userRepository.findByEmail(user.getEmail()) == null) {
+            return userRepository.save(user);
+        }
+        throw new UsernameNotFoundException(String.format("User with email %s already exists.", user.getEmail()));
     }
 
     @Override
