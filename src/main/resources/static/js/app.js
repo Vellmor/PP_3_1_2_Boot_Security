@@ -1,9 +1,28 @@
 $(async function () {
     await getTableWithUsers();
-    getDefaultModal();
-    addNewUser();
 })
 
+const allRoles = fetch(`/api/roles`)
+let allRolesArr = []
+allRoles
+    .then(roles => roles.json())
+    .then(roles => {
+        roles.forEach(r => {
+            allRolesArr[r.id] = r.roleName
+            document.getElementById('rolesForm').append(new Option(r.roleName, r.id))
+        })
+    })
+const newUserTab = document.getElementById('newUserTab')
+const defaultUserForm = document.getElementById('defaultFormGroup')
+
+const fetchParams = {
+    head: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Referer': null
+    },
+    url: '/api/users'
+}
 const userFetchService = {
     head: {
         'Accept': 'application/json',
@@ -26,20 +45,12 @@ const userFetchService = {
     deleteUser: async (id) => await fetch(`/api/users/${id}`, {method: 'DELETE', headers: userFetchService.head})
 }
 
-const roleFetchService = {
-    head: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Referer': null
-    },
-    findAllRoles: async () => await fetch(`/api/roles`),
-}
 
-async function getTableWithUsers() {
+function getTableWithUsers() {
     let table = $('#mainTableWithUsers tbody');
     table.empty();
 
-    await userFetchService.findAllUsers()
+    fetch(fetchParams.url)
         .then(res => res.json())
         .then(users => {
             users.forEach(user => {
@@ -109,8 +120,8 @@ async function getDefaultModal() {
 }
 
 // редактируем юзера из модалки редактирования, забираем данные, отправляем
-async function editUser(modal, id) {
-    let preuser = await userFetchService.findOneUser(id);
+function editUser(modal, id) {
+    let preuser = fetch(fetchParams.url + id);
     let user = preuser.json();
 
     modal.find('.modal-title').html('Edit user');
@@ -122,95 +133,12 @@ async function editUser(modal, id) {
 
     user.then(user => {
         let bodyForm = `
-            <form class="form-group" id="editUser">
-                <div class="modal-body">
-                    <div class="col-4 offset-4 text-center">
-                        <div class="form-group">
-                            <label class="control-label font-weight-bold"
-                                   for="idModal">
-                                First name
-                            </label>
-                            <input type="number"
-                                   value="${user.id}"
-                                   id="idModal"
-                                   class="form-control"
-                                   placeholder="id" 
-                                   disabled="disabled"/>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label font-weight-bold"
-                                   for="firstNameModal">
-                                   First name
-                            </label>
-                            <input type="text"
-                                   value="${user.firstName}"
-                                   id="firstNameModal"
-                                   class="form-control"
-                                   placeholder="First name"/>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label font-weight-bold"
-                                   for="lastNameModal">
-                                   Last name
-                            </label>
-                            <input type="text"
-                                   value="${user.lastName}"
-                                   id="lastNameModal"
-                                   class="form-control"
-                                   placeholder="Last name"/>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label font-weight-bold"
-                                   for="ageModal">
-                                   Age
-                            </label>
-                            <input type="number"
-                                   value="${user.age}"
-                                   id="ageModal"
-                                   class="form-control"/>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label font-weight-bold"
-                                   for="emailModal">
-                                   Email
-                            </label>
-                            <input value="${user.email}"
-                                   type="email" 
-                                   class="form-control"
-                                   id="inputEmail"
-                                   placeholder="Email"/>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label font-weight-bold"
-                                   for="passwordModal">
-                                   Password
-                            </label>
-                            <input value="${user.password}"
-                                   type="password"
-                                   class="form-control"
-                                   id="passwordModal"
-                                   placeholder="Password"/>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label font-weight-bold"
-                                   for="rolesModal">
-                                   Roles
-                            </label>
-                            <select multiple="multiple"
-                                    id="rolesModal"
-                                    class="form-control"/>
-                                <option>
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            
         `;
         modal.find('.modal-body').append(bodyForm);
     })
 
-    $("#editButton").on('click', async () => {
+    $("#editButton").on('click', () => {
         let id = modal.find("#id").val().trim();
         let firstName = modal.find("#firstName").val().trim();
         let lastName = modal.find("#lastName").val().trim();
@@ -227,13 +155,13 @@ async function editUser(modal, id) {
             password: password,
             roles: roles
         }
-        let response = await userFetchService.updateUser(data, id);
+        let response = userFetchService.updateUser(data, id);
 
         if (response.ok) {
-            await getTableWithUsers();
+            getTableWithUsers();
             modal.modal('hide');
         } else {
-            let body = await response.json();
+            let body = response.json();
             let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
                             ${body.info}
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -257,63 +185,61 @@ async function deleteUser(modal, id) {
 }
 
 
-// готово
-async function addNewUser() {
-    let response = await roleFetchService.findAllRoles();
-    let allRoles = response.json();
-    let allRolesArr = []
-    $('#newUserTab').on('click', async () => {
-        $('#newUserForm').find('#rolesNew').find('option').remove() //.end()
-        allRoles.then(roles => {
-            roles.map(r => {
-                    allRolesArr[r.id] = r.roleName
-                    $('#newUserForm').find('#rolesNew').append(new Option(r.roleName, r.id))
-                }
-            );
-        })
-    })
-    $('#addNewUserButton').on('click', async () => {
-        let addUserForm = $('#newUserForm')
-        let firstNameToSend = addUserForm.find('#firstNameNew').val().trim();
-        let lastNameToSend = addUserForm.find('#lastNameNew').val().trim();
-        let ageToSend = addUserForm.find('#ageNew').val().trim();
-        let emailToSend = addUserForm.find('#emailNew').val().trim();
-        let passwordToSend = addUserForm.find('#passwordNew').val().trim();
-        let select = addUserForm.find('#rolesNew').val()
-        let rolesToSend = select.map(function (r) {
+// Добавление нового юзера
+newUserTab.addEventListener('click', event => {
+    event.preventDefault()
+    document.getElementById('newUserForm').append(defaultUserForm)
+    defaultUserForm.hidden = false
+
+})
+
+document.getElementById('addNewUserBtn').addEventListener('click', (e) => {
+    e.preventDefault()
+
+    let firstNameNew = document.getElementById('firstNameForm').value
+    let lastNameNew = document.getElementById('lastNameForm').value
+    let ageNew = document.getElementById('ageForm').value
+    let emailNew = document.getElementById('emailForm').value
+    let passwordNew = document.getElementById('passwordForm').value
+    let rolesNew = document.getElementById('rolesForm')
+
+    let newUser = {
+        firstName: firstNameNew,
+        lastName: lastNameNew,
+        age: ageNew,
+        email: emailNew,
+        password: passwordNew,
+        roles: [].filter
+            .call(rolesNew.options, option => option.selected)
+            .map(function (r) {
                 return {
-                    'id': r,
-                    'roleName': allRolesArr[parseInt(r)]
+                    'id': r.value,
+                    'roleName': r.text
                 }
-            }
-        )
-        let data = {
-            firstName: firstNameToSend,
-            lastName: lastNameToSend,
-            age: ageToSend,
-            email: emailToSend,
-            password: passwordToSend,
-            roles: rolesToSend
-        }
-        let jsonUser = JSON.stringify(data)
-        let response = await userFetchService.addNewUser(data);
-        if (response.ok) {
-            getTableWithUsers();
-            addUserForm.find('#firstNameNew').val('');
-            addUserForm.find('#lastNameNew').val('');
-            addUserForm.find('#ageNew').val('');
-            addUserForm.find('#emailNew').val('');
-            addUserForm.find('#passwordNew').val('');
-            addUserForm.find('#rolesNew').val('');
-        } else {
-            let body = response;
-            let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
-                            ${body.info}
+            })
+    }
+    fetch(fetchParams.url, {
+        method: 'POST',
+        headers: fetchParams.head,
+        body: JSON.stringify(newUser)
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+        })
+        .then(() => {
+            getTableWithUsers()
+            document.getElementById('allUsersTab').click()
+        })
+        .catch(
+            error => {
+                let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
+                            <b>Email уже занят!</b>
+                            <b>${error}</b>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                        </div>`;
-            addUserForm.prepend(alert)
-        }
-    })
-}
+                        </div>`
+                document.getElementById('defaultFormGroup').insertAdjacentHTML('beforebegin', alert)
+            })
+})
