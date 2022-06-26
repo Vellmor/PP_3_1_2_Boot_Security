@@ -1,5 +1,5 @@
 $(async function () {
-    await getTableWithUsers();
+    await getTableWithUsers()
 })
 
 const allRoles = fetch(`/api/roles`)
@@ -23,28 +23,6 @@ const fetchParams = {
     },
     url: '/api/users'
 }
-const userFetchService = {
-    head: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Referer': null
-    },
-    // bodyAdd : async function(user) {return {'method': 'POST', 'headers': this.head, 'body': user}},
-    findAllUsers: async () => await fetch('/api/users'),
-    findOneUser: async (id) => await fetch(`/api/users/${id}`),
-    addNewUser: async (user) => await fetch('/api/users', {
-        method: 'POST',
-        headers: userFetchService.head,
-        body: JSON.stringify(user)
-    }),
-    updateUser: async (user, id) => await fetch(`/api/users/${id}`, {
-        method: 'PATCH',
-        headers: userFetchService.head,
-        body: JSON.stringify(user)
-    }),
-    deleteUser: async (id) => await fetch(`/api/users/${id}`, {method: 'DELETE', headers: userFetchService.head})
-}
-
 
 function getTableWithUsers() {
     let table = $('#mainTableWithUsers tbody');
@@ -64,133 +42,249 @@ function getTableWithUsers() {
                             <td>${user.email}</td>
                             <td>${rolesString}</td>
                             <td>
-                                <button type="button" data-userid="edit${user.id}" data-action="edit" class="btn btn-primary" 
-                                data-toggle="modal" data-target="#defaultModal">Edit</button>
+                                <div class="modal fade" id="editModal${user.id}" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                
+                                            <div class="modal-body">
+                                            </div>
+                                
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">
+                                                    Close
+                                                </button>
+                                                <button type="submit" 
+                                                        class="btn btn-primary"
+                                                        data-toggle="modal"
+                                                        id="${user.id}"
+                                                        onclick="editUser(${user.id})">
+                                                    Edit
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="editUserModal(${user.id})" id="editUser" data-userid="${user.id}" data-action="edit" class="btn btn-primary" 
+                                data-toggle="modal" data-target="#editModal${user.id}">Edit</button>
                             </td>
                             <td>
-                                <button type="button" data-userid="delete${user.id}" data-action="delete" class="btn btn-danger" 
-                                data-toggle="modal" data-target="#defaultModal">Delete</button>
+                                <div class="modal fade" id="deleteModal${user.id}" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                
+                                            <div class="modal-body">
+                                            </div>
+                                
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">
+                                                    Close
+                                                </button>
+                                                <button type="submit" class="btn btn-primary btn-danger"
+                                                        data-toggle="modal"
+                                                        id="${user.id}"
+                                                        onclick="deleteUser(${user.id})">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="deleteUserModal(${user.id})" id="deleteUser" data-userid="${user.id}" data-action="delete" class="btn btn-danger" 
+                                data-toggle="modal" data-target="#deleteModal${user.id}">Delete</button>
                             </td>
                         </tr>
                 )`;
+
                 table.append(tableFilling);
             })
         })
-
-    // обрабатываем нажатие на любую из кнопок edit или delete
-    // достаем из нее данные и отдаем модалке, которую к тому же открываем
-    $("#mainTableWithUsers").find('button').on('click', (event) => {
-        let defaultModal = $('#defaultModal');
-
-        let targetButton = $(event.target);
-        let buttonUserId = targetButton.attr('data-userid');
-        let buttonAction = targetButton.attr('data-action');
-
-        defaultModal.attr('data-userid', buttonUserId);
-        defaultModal.attr('data-action', buttonAction);
-        defaultModal.modal('show');
-    })
 }
 
-// что то деалем при открытии модалки и при закрытии
-// основываясь на ее дата атрибутах
-async function getDefaultModal() {
-    $('#defaultModal').modal({
-        keyboard: true,
-        backdrop: "static",
-        show: false
-    }).on("show.bs.modal", (event) => {
-        let thisModal = $(event.target);
-        let userid = thisModal.attr('data-userid');
-        let action = thisModal.attr('data-action');
-        switch (action) {
-            case 'edit':
-                editUser(thisModal, userid);
-                break;
-            case 'delete':
-                deleteUser(thisModal, userid);
-                break;
-        }
-    }).on("hidden.bs.modal", (e) => {
-        let thisModal = $(e.target);
-        thisModal.find('.modal-title').html('');
-        thisModal.find('.modal-body').html('');
-        thisModal.find('.modal-footer').html('');
-    })
+function editUserModal(userId) {
+    let userModal = document.getElementById('editModal' + userId)
+    let userModalBody = userModal.getElementsByClassName('modal-body')[0]
+    userModalBody.append(defaultUserForm)
+    document.getElementById('idForm').parentNode.hidden = false
+
+    fetch(fetchParams.url + '/' + userId)
+        .then(dbUser => dbUser.json())
+        .then(jsonUser => {
+                document.getElementById('idForm').value = jsonUser.id
+                $("#idForm").prop('disabled', false)
+                document.getElementById('firstNameForm').value = jsonUser.firstName
+                $("#firstNameForm").prop('disabled', false)
+                document.getElementById('lastNameForm').value = jsonUser.lastName
+                $("#lastNameForm").prop('disabled', false)
+                document.getElementById('ageForm').value = jsonUser.age
+                $("#ageForm").prop('disabled', false)
+                document.getElementById('emailForm').value = jsonUser.email
+                $("#emailForm").prop('disabled', false)
+                document.getElementById('passwordForm').value = jsonUser.password
+                $("#passwordForm").prop('disabled', false)
+                $("#rolesForm").prop('disabled', false)
+            }
+        )
+    defaultUserForm.hidden = false
+    $("#modalEdit").modal("show")
 }
 
-// редактируем юзера из модалки редактирования, забираем данные, отправляем
-function editUser(modal, id) {
-    let preuser = fetch(fetchParams.url + id);
-    let user = preuser.json();
+function editUser(userId) {
+    let firstNameNew = document.getElementById('firstNameForm').value
+    let lastNameNew = document.getElementById('lastNameForm').value
+    let ageNew = document.getElementById('ageForm').value
+    let emailNew = document.getElementById('emailForm').value
+    let passwordNew = document.getElementById('passwordForm').value
+    let rolesNew = document.getElementById('rolesForm')
 
-    modal.find('.modal-title').html('Edit user');
-
-    let closeButton = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>`
-    let editButton = `<button  type="submit" class="btn btn-primary" data-toggle="modal" id="editButton">Edit</button>`;
-    modal.find('.modal-footer').append(editButton);
-    modal.find('.modal-footer').append(closeButton);
-
-    user.then(user => {
-        let bodyForm = `
-            
-        `;
-        modal.find('.modal-body').append(bodyForm);
+    let newUser = {
+        firstName: firstNameNew,
+        lastName: lastNameNew,
+        age: ageNew,
+        email: emailNew,
+        password: passwordNew,
+        roles: [].filter
+            .call(rolesNew.options, option => option.selected)
+            .map(function (r) {
+                return {
+                    'id': r.value,
+                    'roleName': r.text
+                }
+            })
+    }
+    fetch(fetchParams.url + `/` + userId, {
+        method: 'PATCH',
+        headers: fetchParams.head,
+        body: JSON.stringify(newUser)
     })
-
-    $("#editButton").on('click', () => {
-        let id = modal.find("#id").val().trim();
-        let firstName = modal.find("#firstName").val().trim();
-        let lastName = modal.find("#lastName").val().trim();
-        let age = modal.find("#age").val().trim();
-        let email = modal.find("#email").val().trim();
-        let password = modal.find("#password").val().trim();
-        let roles = $('#rolesMulti').val();
-        let data = {
-            id: id,
-            firstName: firstName,
-            lastName: lastName,
-            age: age,
-            email: email,
-            password: password,
-            roles: roles
-        }
-        let response = userFetchService.updateUser(data, id);
-
-        if (response.ok) {
-            getTableWithUsers();
-            modal.modal('hide');
-        } else {
-            let body = response.json();
-            let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
-                            ${body.info}
+        .then(data => {
+            if (data.status === 200) {
+                document.getElementById('firstNameForm').value = ''
+                document.getElementById('lastNameForm').value = ''
+                document.getElementById('ageForm').value = ''
+                document.getElementById('emailForm').value = ''
+                document.getElementById('passwordForm').value = ''
+                $('.modal-backdrop').remove();
+                defaultUserForm.hidden = true
+                getTableWithUsers()
+                document.getElementById('allUsersTab').click()
+            }
+        })
+        .catch(
+            error => {
+                let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
+                            <b>Что-то пошло не так!</b>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                        </div>`;
-            modal.find('.modal-body').prepend(alert);
-        }
-    })
+                        </div>`
+                document.getElementById('defaultFormGroup').insertAdjacentHTML('beforebegin', alert)
+            })
 }
 
-
 // удаляем юзера из модалки удаления
-async function deleteUser(modal, id) {
-    await userFetchService.deleteUser(id);
-    await getTableWithUsers();
-    modal.find('.modal-title').html('');
-    modal.find('.modal-body').html('User was deleted');
-    let closeButton = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>`
-    modal.find('.modal-footer').append(closeButton);
+function deleteUserModal(userId) {
+    let userModal = document.getElementById('deleteModal' + userId)
+    let userModalBody = userModal.getElementsByClassName('modal-body')[0]
+    userModalBody.append(defaultUserForm)
+    document.getElementById('idForm').parentNode.hidden = false
+
+    fetch(fetchParams.url + '/' + userId)
+        .then(dbUser => dbUser.json())
+        .then(jsonUser => {
+                document.getElementById('idForm').value = jsonUser.id
+                $("#idForm").prop('disabled', true)
+                document.getElementById('firstNameForm').value = jsonUser.firstName
+                $("#firstNameForm").prop('disabled', true)
+                document.getElementById('lastNameForm').value = jsonUser.lastName
+                $("#lastNameForm").prop('disabled', true)
+                document.getElementById('ageForm').value = jsonUser.age
+                $("#ageForm").prop('disabled', true)
+                document.getElementById('emailForm').value = jsonUser.email
+                $("#emailForm").prop('disabled', true)
+                document.getElementById('passwordForm').value = jsonUser.password
+                $("#passwordForm").prop('disabled', true)
+                $("#rolesForm").prop('disabled', true)
+            }
+        )
+    defaultUserForm.hidden = false
+    $("#modalDelete").modal("show")
+}
+
+async function deleteUser(userId) {
+    fetch(fetchParams.url + `/` + userId, {
+        method: 'DELETE',
+        headers: fetchParams.head,
+    })
+        .then(data => {
+            if (data.status === 200) {
+                document.getElementById('firstNameForm').value = ''
+                $("#firstNameForm").prop('disabled', false)
+                document.getElementById('lastNameForm').value = ''
+                $("#lastNameForm").prop('disabled', false)
+                document.getElementById('ageForm').value = ''
+                $("#ageForm").prop('disabled', false)
+                document.getElementById('emailForm').value = ''
+                $("#emailForm").prop('disabled', false)
+                document.getElementById('passwordForm').value = ''
+                $("#passwordForm").prop('disabled', false)
+                $("#rolesForm").prop('disabled', false)
+                $('.modal-backdrop').remove();
+                defaultUserForm.hidden = true
+                getTableWithUsers()
+                document.getElementById('allUsersTab').click()
+            }
+        })
+        .catch(
+            error => {
+                let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
+                            <b>Что-то пошло не так!</b>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>`
+                document.getElementById('defaultFormGroup').insertAdjacentHTML('beforebegin', alert)
+            })
 }
 
 
 // Добавление нового юзера
-newUserTab.addEventListener('click', event => {
+document.getElementById('newUserTab').addEventListener('click', event => {
     event.preventDefault()
     document.getElementById('newUserForm').append(defaultUserForm)
-    defaultUserForm.hidden = false
 
+    document.getElementById('idForm').value = ''
+    document.getElementById('firstNameForm').value = ''
+    document.getElementById('lastNameForm').value = ''
+    document.getElementById('ageForm').value = ''
+    document.getElementById('emailForm').value = ''
+    document.getElementById('passwordForm').value = ''
+    document.getElementById('rolesForm').options.forEach(option => option.selected = false)
+
+    $("#idForm").prop('disabled', true)
+    $("#firstNameForm").prop('disabled', false)
+    $("#lastNameForm").prop('disabled', false)
+    $("#ageForm").prop('disabled', false)
+    $("#emailForm").prop('disabled', false)
+    $("#passwordForm").prop('disabled', false)
+    $("#rolesForm").prop('disabled', false)
+
+    defaultUserForm.hidden = false
 })
 
 document.getElementById('addNewUserBtn').addEventListener('click', (e) => {
@@ -230,12 +324,17 @@ document.getElementById('addNewUserBtn').addEventListener('click', (e) => {
         .then(() => {
             getTableWithUsers()
             document.getElementById('allUsersTab').click()
+            document.getElementById('firstNameForm').value = ''
+            document.getElementById('lastNameForm').value = ''
+            document.getElementById('ageForm').value = ''
+            document.getElementById('emailForm').value = ''
+            document.getElementById('passwordForm').value = ''
+            document.getElementById('rolesForm').options.forEach(option => option.selected = false)
         })
         .catch(
             error => {
                 let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
                             <b>Email уже занят!</b>
-                            <b>${error}</b>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
